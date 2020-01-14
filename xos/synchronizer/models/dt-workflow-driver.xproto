@@ -1,0 +1,94 @@
+option name = "dt-workflow-driver";
+option app_label = "dt-workflow-driver";
+
+message DtWorkflowDriverService (Service){
+    option verbose_name = "DtWorkflowDriver Service";
+    option kind = "control";
+    option description = "Service that manages the PPPoE subscriber workflow";
+}
+
+message DtWorkflowDriverServiceInstance (ServiceInstance){
+    option owner_class_name = "DtWorkflowDriverService";
+    option verbose_name = "DtWorkflowDriver Service Instance";
+    option description = "Workflow settings for a particular ONU Device";
+    option policy_implemented = "True";
+
+    required string serial_number = 2 [
+        help_text = "Serial number of ONU",
+        max_length = 256,
+        tosca_key=True,
+        unique = True];
+    required string authentication_state = 3 [
+        help_text = "Subscriber authentication state",
+        choices = "(('AWAITING', 'Awaiting'), ('STARTED', 'Started'), ('APPROVED', 'Approved'), ('DENIED', 'Denied'), )",
+        default = "AWAITING",
+        feedback_state = True,
+        max_length = 50];
+    required string of_dpid = 4 [
+        help_text = "OLT Openflow ID",
+        max_length = 256];
+    required int32 uni_port_id = 5 [
+        help_text = "ONU UNI port ID"];
+    required string admin_onu_state = 6 [
+        help_text = "ONU administrative state",
+        choices = "(('AWAITING', 'Awaiting'), ('ENABLED', 'Enabled'), ('DISABLED', 'Disabled'))",
+        default = "AWAITING",
+        feedback_state = True,
+        max_length = 256];
+    optional string status_message = 7 [
+        help_text = "Status text of current state machine state",
+        default = "",
+        max_length = 256];
+    required string pppoe_state = 8 [
+        help_text = "State of the subscriber PPPoE session",
+        max_length = 256,
+        default = "AWAITING",
+        choices = "(('AWAITING', 'Awaiting'), ('INITIATED', 'Initiated'), ('CONNECTED', 'Connected'), ('DISCONNECTED', 'Disconnected'))",
+        feedback_state = True];
+    optional string pppoe_session_id = 9 [
+        help_text = "Subscriber PPPoE session ID",
+        feedback_state = True,
+        max_length = 20];
+    required string ipcp_state = 10 [
+        help_text = "State of the IPCP protocol for IP address assignment",
+        max_length = 256,
+        default = "AWAITING",
+        choices = "(('AWAITING', 'Awaiting'), ('CONF_ACK', 'Ack'), ('CONF_REQUEST', 'Requested'))",
+        feedback_state = True];
+    optional string ip_address = 11 [
+        help_text = "Subscriber IP address, learned from IPCP",
+        feedback_state = True,
+        max_length = 20];
+    optional string mac_address = 12 [
+        help_text = "Subscriber MAC address",
+        feedback_state = True,
+        max_length = 20];
+    required string oper_onu_status = 13 [
+        help_text = "ONU operational state",
+        choices = "(('AWAITING', 'Awaiting'), ('ENABLED', 'Enabled'), ('DISABLED', 'Disabled'))",
+        default = "AWAITING",
+        feedback_state = True,
+        max_length = 256];
+}
+
+message DtWorkflowDriverWhiteListEntry (XOSBase) {
+    option verbose_name = "ONU Whitelist";
+    option plural = "dtworkflowdriverwhitelistentries";
+    option description = "White list entry that permits an ONU with a particular serial number on a particular OLT and PON";
+    option policy_implemented = "True";
+
+    required manytoone owner->DtWorkflowDriverService:whitelist_entries = 1:1001 [
+        help_text = "DtWorkflowDriverService that owns this white list entry",
+        db_index = True,
+        tosca_key = True];
+    required string serial_number = 2 [
+        help_text = "ONU Serial Number",
+        max_length = 256,
+        tosca_key = True,
+        unique_with = "owner"];
+    required int32 pon_port_id = 3 [
+        help_text = "PON Port on which this ONU is expected to show up"];
+    required string device_id = 4 [
+        help_text = "OLT Device (logical device id) on which this ONU is expected to show up",
+        max_length = 54];
+}

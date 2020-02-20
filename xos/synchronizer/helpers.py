@@ -40,7 +40,7 @@ class DtHelpers():
 
         whitelisted = matching_entries[0]
         try:
-            onu = model_accessor.ONUDevice.objects.get(serial_number=dt_si.serial_number)
+            onu = model_accessor.ONUDevice.objects.get(serial_number=dt_si.serial_number.split("-")[0])
             pon_port = onu.pon_port
         except IndexError:
             raise DeferredException("ONU device %s is not know to XOS yet" % dt_si.serial_number)
@@ -65,7 +65,8 @@ class DtHelpers():
     def find_or_create_dt_si(model_accessor, log, event):
         try:
             dt_si = model_accessor.DtWorkflowDriverServiceInstance.objects.get(
-                serial_number=event["serialNumber"]
+                # FIXME: in this way we support a single UNI port per ONU
+                serial_number=event["serialNumber"].split("-")[0]
             )
             log.debug("DtHelpers: Found existing DtWorkflowDriverServiceInstance", si=dt_si)
         except IndexError:

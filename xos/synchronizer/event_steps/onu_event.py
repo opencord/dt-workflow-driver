@@ -31,6 +31,11 @@ class ONUEventStep(EventStep):
     def process_event(self, event):
         value = json.loads(event.value)
         self.log.info("onu.events: received event", value=value)
+        # This is needed to be compatible with both Voltha 1.7 and Voltha 2.x
+        # It supposes to have only 1 subscriber per ONU and the subscriber is connected to the first port
+        if "-" in value["serialNumber"] and not value["serialNumber"].endswith("-1"):
+            self.log.info("Skip event, only consider [serialNumber]-1 events")
+            return
 
         dt_si = DtHelpers.find_or_create_dt_si(self.model_accessor, self.log, value)
         if value["status"] == "activated":

@@ -65,8 +65,7 @@ class DtHelpers():
     def find_or_create_dt_si(model_accessor, log, event):
         try:
             dt_si = model_accessor.DtWorkflowDriverServiceInstance.objects.get(
-                # FIXME: in this way we support a single UNI port per ONU
-                serial_number=event["serialNumber"].split("-")[0]
+                serial_number=event["serialNumber"]
             )
             log.debug("DtHelpers: Found existing DtWorkflowDriverServiceInstance", si=dt_si)
         except IndexError:

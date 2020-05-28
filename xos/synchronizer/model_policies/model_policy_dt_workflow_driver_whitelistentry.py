@@ -1,4 +1,3 @@
-
 # Copyright 2020-present Open Networking Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,6 +42,8 @@ class DtWorkflowDriverWhiteListEntryPolicy(Policy):
             si=si,
             onu_state=si.admin_onu_state,
             authentication_state=si.authentication_state)
+
+        si.status_message = message
         si.save_changed_fields(always_update_timestamp=True)
 
     def handle_update(self, whitelist):
